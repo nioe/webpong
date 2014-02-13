@@ -1,27 +1,25 @@
 if (Meteor.isClient) {
-  Template.hello.greeting = function () {
-    return "Welcome to webpong.";
-  };
+    Meteor.startup(function() {
+        document.body.insertAdjacentHTML('beforeend', Template.client());
 
-  Template.client.saySomething = function() {
-    return "This is a Client Screen!";
-  };
+        var canvas = document.getElementById("canvasMain"),
+            game = new Game(canvas);
 
-  Template.hello.events({
-    'click input' : function () {
-      // template data, if any, is available in 'this'
-      if (typeof console !== 'undefined')
-        console.log("You pressed the button");
-    }
-  });
+        
 
-  Meteor.startup(function() {
-    document.body.insertAdjacentHTML('beforeend', Template.client());
-  });
+        function isTouchDevice() {
+            return 'ontouchstart' in window || 'onmsgesturechange' in window; // IE 10 fix
+        }
+
+        game.resizeCanvas();
+        game.startGame();
+
+        window.addEventListener('resize', game.resizeCanvas, false);
+    });
 }
 
 if (Meteor.isServer) {
-  Meteor.startup(function () {
-    // code to run on server at startup
-  });
+    Meteor.startup(function () {
+
+    });
 }
