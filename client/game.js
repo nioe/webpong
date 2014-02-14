@@ -7,7 +7,14 @@ window.Game = function(canvas) {
 		paddleRight = new window.objects.Paddle(),
 		score = 0,
 		gameLoop = undefined,
-		that = this;
+		that = this
+        paddleSpeed = 10,
+        paddleMoving = { 
+            leftUp: false,
+            leftDown: false,
+            rightUp: false,
+            rightDown: false
+        };
 
 	this.startGame = function() {
 		that.initGame();
@@ -19,12 +26,12 @@ window.Game = function(canvas) {
     this.initGame = function() {
         that.initBallSpeed();
         paddleLeft.positionX = 0;
-        paddleRight.positionY =100;
         paddleRight.positionX = canvas.width - paddleRight.width;
     }
     
     this.initEventListeners = function() {
-        document.addEventListener('keydown', that.handleKeyDown);
+        document.addEventListener('keydown', that.handleKeyEvent);
+        document.addEventListener('keyup', that.handleKeyEvent);
     }
 
 	this.endGame = function() {
@@ -37,6 +44,12 @@ window.Game = function(canvas) {
 
 		that.moveBall();
 
+        if (paddleMoving.rightUp) that.movePaddle(paddleSpeed * -1, paddleRight);
+        else if (paddleMoving.rightDown) that.movePaddle(paddleSpeed, paddleRight);
+        
+        if (paddleMoving.leftUp) that.movePaddle(paddleSpeed * -1, paddleLeft);
+        else if (paddleMoving.leftDown) that.movePaddle(paddleSpeed, paddleLeft);
+        
 		ball.draw(context);
 		paddleLeft.draw(context);
 		paddleRight.draw(context);
@@ -64,7 +77,11 @@ window.Game = function(canvas) {
         ball.move();
 	}
     
-    this.handleKeyDown = function(event) {
+    this.movePaddle = function(step, paddle) {
+        paddle.positionY = Math.max(Math.min(paddle.positionY + step, canvas.height - paddle.height), 0);
+    }
+    
+    this.handleKeyEvent = function(event) {
         var keys = { 
                 ARROWUP: 38,
                 ARROWDOWN: 40,
@@ -74,16 +91,16 @@ window.Game = function(canvas) {
         
         switch(event.keyCode) {
             case keys.ARROWUP:
-                console.log("pressed arrow up");
+                paddleMoving.rightUp = (event.type == 'keydown');
                 break;
             case keys.ARROWDOWN:
-                console.log("pressed arrow down");
+                paddleMoving.rightDown = (event.type == 'keydown');
                 break;
             case keys.W:
-                console.log("pressed w");
+                paddleMoving.leftUp = (event.type == 'keydown');
                 break;
             case keys.S:
-                console.log("pressed s");
+                paddleMoving.leftDown = (event.type == 'keydown');
                 break;
         }        
     }
