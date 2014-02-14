@@ -4,17 +4,11 @@ if (Meteor.isClient) {
 
         var canvas = document.getElementById("canvasMain"),
             game = new Game(canvas);
-
         
-
-        function isTouchDevice() {
-            return 'ontouchstart' in window || 'onmsgesturechange' in window; // IE 10 fix
-        }
-
+        window.addEventListener('resize', game.resizeCanvas, false);
+        
         game.resizeCanvas();
         game.startGame();
-
-        window.addEventListener('resize', game.resizeCanvas, false);
     });
 }
 

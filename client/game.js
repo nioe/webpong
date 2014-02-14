@@ -2,20 +2,18 @@ window.Game = function(canvas) {
 
 	var canvas = canvas || document.getElementsByTagName('canvas')[0],
 		context = canvas.getContext('2d'),
-		ball = new window.objects.Ball(10),
-		paddleLeft = new window.objects.Paddle(),
-		paddleRight = new window.objects.Paddle(),
+		ball = new window.objects.Ball(context),
+		paddleLeft = new window.objects.Paddle(context),
+		paddleRight = new window.objects.Paddle(context),
 		score = 0,
-		gameLoop = undefined,
+        isStopped = false,
 		that = this;
-    
-    this.FPS = 60;
 
 	this.startGame = function() {
 		that.initGame();
         that.initEventListeners();
         
-		gameLoop = setInterval(that.draw, Math.floor(1000/that.FPS));
+		window.requestAnimationFrame(that.draw);
 	}
     
     this.initGame = function() {
@@ -26,25 +24,36 @@ window.Game = function(canvas) {
     }
     
     this.initEventListeners = function() {
-        document.addEventListener('keydown', that.handleKeyDown);
+        if(that.isTouchDevice) {
+            document.addEventListener('touchstart', that.handleKeyDown);
+        } else {
+            document.addEventListener('keydown', that.handleKeyDown);
+        }
     }
 
 	this.endGame = function() {
-		clearInterval(gameLoop);
-        console.log("Game Stopped");
+		//clearInterval(gameLoop);
+        console.log("end of game");
 	}
 
-	this.draw = function() {
+	this.draw = function(timestamp) {
 		context.clearRect(0, 0, canvas.width, canvas.height);
 
 		that.moveBall();
 
-		ball.draw(context);
-		paddleLeft.draw(context);
-		paddleRight.draw(context);
+		ball.draw();
+		paddleLeft.draw();
+		paddleRight.draw();
+        
+        if(!isStopped) {
+            window.requestAnimationFrame(that.draw);
+        }
 	}
 
 	this.initBallSpeed = function() {
+        ball.positionX = canvas.width/2;
+        ball.positionY = canvas.height/2;
+        
 		ball.deltaX = -6;
 		ball.deltaY = -6;
 	}
@@ -60,7 +69,7 @@ window.Game = function(canvas) {
             (ball.positionY + ball.deltaY >= paddleRight.positionY && ball.positionY + ball.deltaY <= paddleRight.positionY + paddleLeft.height)){
             ball.deltaX = -ball.deltaX;
         } else if((ball.positionX + ball.deltaX <= 0) || (ball.positionX + ball.deltaX >= canvas.width)) {
-            this.endGame();
+            isStopped = true;
         }
 
         ball.move();
@@ -93,7 +102,12 @@ window.Game = function(canvas) {
 	this.resizeCanvas = function() {
 		canvas.width = window.innerWidth;
 		canvas.height = window.innerHeight;
-
+        
         that.initGame();
 	}
+    
+    this.isTouchDevice = function() {
+        return 'ontouchstart' in window || 'onmsgesturechange' in window; // IE 10 fix
+    }
+
 };
