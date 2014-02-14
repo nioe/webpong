@@ -17,10 +17,13 @@ window.Game = function(canvas) {
         };
 
 	this.startGame = function() {
+        isStopped = false;
+        
 		that.initGame();
         that.initEventListeners();
         
 		window.requestAnimationFrame(that.draw);
+        console.log("Game started");
 	}
     
     this.initGame = function() {
@@ -34,13 +37,12 @@ window.Game = function(canvas) {
         document.addEventListener('keyup', that.handleKeyEvent);
     }
 
-	this.endGame = function() {
-		//clearInterval(gameLoop);
-        console.log("end of game");
-	}
-
 	this.draw = function(timestamp) {
-		context.clearRect(0, 0, canvas.width, canvas.height);
+        if(!isStopped) {
+            window.requestAnimationFrame(that.draw);
+        }
+
+        context.clearRect(0, 0, canvas.width, canvas.height);
 
 		that.moveBall();
 
@@ -53,10 +55,6 @@ window.Game = function(canvas) {
 		ball.draw();
 		paddleLeft.draw();
 		paddleRight.draw();
-
-        if(!isStopped) {
-            window.requestAnimationFrame(that.draw);
-        }
 	}
 
 	this.initBallSpeed = function() {
@@ -72,13 +70,14 @@ window.Game = function(canvas) {
             ball.deltaY = -ball.deltaY;
         }
      
-        if ((ball.positionX + ball.deltaX - ball.ballRadius <= paddleLeft.positionX + paddleLeft.width) && 
+        if((ball.positionX - ball.deltaX <= 0) || (ball.positionX + ball.deltaX >= canvas.width)) {
+            isStopped = true;
+            console.log("Game Ended");
+        } else if ((ball.positionX + ball.deltaX - ball.ballRadius <= paddleLeft.positionX + paddleLeft.width) && 
             (ball.positionY + ball.deltaY >= paddleLeft.positionY && ball.positionY + ball.deltaY <= paddleLeft.positionY + paddleLeft.height) || 
             (ball.positionX + ball.deltaX + ball.ballRadius >= paddleRight.positionX) && 
             (ball.positionY + ball.deltaY >= paddleRight.positionY && ball.positionY + ball.deltaY <= paddleRight.positionY + paddleLeft.height)){
             ball.deltaX = -ball.deltaX;
-        } else if((ball.positionX + ball.deltaX <= 0) || (ball.positionX + ball.deltaX >= canvas.width)) {
-            isStopped = true;
         }
 
         ball.move();
@@ -116,7 +115,11 @@ window.Game = function(canvas) {
 		canvas.width = window.innerWidth;
 		canvas.height = window.innerHeight;
         
-        that.initGame();
+        if(isStopped) {
+            that.startGame();
+        } else {
+            that.initGame();
+        }
 	}
     
     this.isTouchDevice = function() {
