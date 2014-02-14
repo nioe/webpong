@@ -7,13 +7,15 @@ window.Game = function(canvas) {
 		paddleRight = new window.objects.Paddle(),
 		score = 0,
 		gameLoop = undefined,
-		that = this;
+		that = this,
+        FPS = 60,
+        loopInterval = 1000/60;
 
 	this.startGame = function() {
 		that.initGame();
         that.initEventListeners();
         
-		gameLoop = setInterval(that.draw, 10);
+		gameLoop = setInterval(that.draw, loopInterval);
 	}
     
     this.initGame = function() {
