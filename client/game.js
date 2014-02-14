@@ -59,14 +59,10 @@ window.Game = function(canvas) {
         ball.move();
 	}
 
-	this.collisionWithPaddle = function() {
-
-	}
-
 	this.resizeCanvas = function() {
 		canvas.width = window.innerWidth;
 		canvas.height = window.innerHeight;
 
-        that.draw();
+        that.initGame();
 	}
 };
