@@ -1,12 +1,12 @@
 window.objects = window.objects || {};
 
 window.objects.Paddle = function(positionX, positionY) {
-	var positionX = positionX || 0,
-		positionY = positionY || 0,
-		width = 15,
-		height = 100;
+	this.positionX = positionX || 0;
+    this.positionY = positionY || 0;
+    this.width = 15;
+    this.height = 100;
 
 	this.draw = function (context) {
-		context.fillRect(positionX, positionY, width, height);
+		context.fillRect(this.positionX, this.positionY, this.width, this.height);
 	}
 }
