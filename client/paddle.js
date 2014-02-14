@@ -9,8 +9,4 @@ window.objects.Paddle = function(positionX, positionY) {
 	this.draw = function (context) {
 		context.fillRect(positionX, positionY, width, height);
 	}
-
-	this.move = function (deltaY) {
-		// TODO implement moving
-	}
 }

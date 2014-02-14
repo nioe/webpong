@@ -1,33 +1,24 @@
 window.objects = window.objects || {};
 
-window.objects.Ball = function(canvas, ballRadius, deltaX, deltaY) {
-	var canvas = canvas || document.getElementsByTagName('canvas')[0],
-		positionX = canvas.width/2,
-		positionY = canvas.height/2,
-		deltaX = deltaX || 0,
-		deltaY = deltaY || 0,
-		ballRadius = ballRadius || 10;
+window.objects.Ball = function(ballRadius) {
+	var canvas = canvas || document.getElementsByTagName('canvas')[0];
+
+	this.positionX = canvas.width/2;
+	this.positionY = canvas.height/2;
+	this.ballRadius = ballRadius || 10;
+	this.deltaX = 0;
+	this.deltaY = 0;
 
 	this.draw = function (context) {
-		this.move();
-
 		context.beginPath();
-        context.arc(positionX, positionY, ballRadius, 0, Math.PI*2, true);
+        context.arc(this.positionX, this.positionY, this.ballRadius, 0, Math.PI*2, true);
         context.closePath();
 
         context.fill();   
 	}
 
-	this.move = function () {
-        if (positionY + deltaY - ballRadius < 0 || positionY + deltaY + ballRadius > canvas.height){
-            deltaY = -deltaY;
-        }
-     
-        if ((positionX + deltaX - ballRadius < 0) || (positionX + deltaX + ballRadius > canvas.width)){  
-            deltaX = -deltaX;
-        }
-     
-        positionX += deltaX;
-        positionY += deltaY;
+	this.move = function() {
+		this.positionX += this.deltaX;
+		this.positionY += this.deltaY;
 	}
 }
