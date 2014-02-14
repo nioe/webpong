@@ -14,13 +14,15 @@ window.Game = function(canvas) {
             leftDown: false,
             rightUp: false,
             rightDown: false
-        };
+        },
+        FPS = 60,
+        loopInterval = 1000/FPS;
 
 	this.startGame = function() {
 		that.initGame();
         that.initEventListeners();
         
-		gameLoop = setInterval(that.draw, 10);
+		gameLoop = setInterval(that.draw, loopInterval);
 	}
     
     this.initGame = function() {
