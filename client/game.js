@@ -11,7 +11,8 @@ window.Game = function(canvas) {
 
 	this.startGame = function() {
 		that.initGame();
-
+        that.initEventListeners();
+        
 		gameLoop = setInterval(that.draw, 10);
 	}
     
@@ -20,6 +21,10 @@ window.Game = function(canvas) {
         paddleLeft.positionX = 0;
         paddleRight.positionY =100;
         paddleRight.positionX = canvas.width - paddleRight.width;
+    }
+    
+    this.initEventListeners = function() {
+        document.addEventListener('keydown', that.handleKeyDown);
     }
 
 	this.endGame = function() {
@@ -58,6 +63,30 @@ window.Game = function(canvas) {
 
         ball.move();
 	}
+    
+    this.handleKeyDown = function(event) {
+        var keys = { 
+                ARROWUP: 38,
+                ARROWDOWN: 40,
+                W: 87,
+                S: 83
+            };
+        
+        switch(event.keyCode) {
+            case keys.ARROWUP:
+                console.log("pressed arrow up");
+                break;
+            case keys.ARROWDOWN:
+                console.log("pressed arrow down");
+                break;
+            case keys.W:
+                console.log("pressed w");
+                break;
+            case keys.S:
+                console.log("pressed s");
+                break;
+        }        
+    }
 
 	this.resizeCanvas = function() {
 		canvas.width = window.innerWidth;
