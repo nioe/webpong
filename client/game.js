@@ -9,7 +9,7 @@ window.Game = function(canvas) {
 		gameLoop = undefined,
 		that = this,
         FPS = 60,
-        loopInterval = 1000/60;
+        loopInterval = 1000/FPS;
 
 	this.startGame = function() {
 		that.initGame();
