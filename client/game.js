@@ -6,11 +6,7 @@ window.Game = function(canvas) {
 		paddleLeft = new window.objects.Paddle(context),
 		paddleRight = new window.objects.Paddle(context),
 		score = 0,
-<<<<<<< HEAD
         isStopped = false,
-		that = this;
-=======
-		gameLoop = undefined,
 		that = this
         paddleSpeed = 10,
         paddleMoving = { 
@@ -18,10 +14,7 @@ window.Game = function(canvas) {
             leftDown: false,
             rightUp: false,
             rightDown: false
-        },
-        FPS = 60,
-        loopInterval = 1000/FPS;
->>>>>>> e4f0e1d882a09557df5a5e69337811bc7c0789a9
+        };
 
 	this.startGame = function() {
 		that.initGame();
@@ -37,16 +30,11 @@ window.Game = function(canvas) {
     }
     
     this.initEventListeners = function() {
-<<<<<<< HEAD
         if(that.isTouchDevice) {
             document.addEventListener('touchstart', that.handleKeyDown);
         } else {
             document.addEventListener('keydown', that.handleKeyDown);
         }
-=======
-        document.addEventListener('keydown', that.handleKeyEvent);
-        document.addEventListener('keyup', that.handleKeyEvent);
->>>>>>> e4f0e1d882a09557df5a5e69337811bc7c0789a9
     }
 
 	this.endGame = function() {
@@ -59,15 +47,6 @@ window.Game = function(canvas) {
 
 		that.moveBall();
 
-<<<<<<< HEAD
-		ball.draw();
-		paddleLeft.draw();
-		paddleRight.draw();
-        
-        if(!isStopped) {
-            window.requestAnimationFrame(that.draw);
-        }
-=======
         if (paddleMoving.rightUp) that.movePaddle(paddleSpeed * -1, paddleRight);
         else if (paddleMoving.rightDown) that.movePaddle(paddleSpeed, paddleRight);
         
@@ -77,7 +56,10 @@ window.Game = function(canvas) {
 		ball.draw(context);
 		paddleLeft.draw(context);
 		paddleRight.draw(context);
->>>>>>> e4f0e1d882a09557df5a5e69337811bc7c0789a9
+
+        if(!isStopped) {
+            window.requestAnimationFrame(that.draw);
+        }
 	}
 
 	this.initBallSpeed = function() {
