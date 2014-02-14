@@ -7,7 +7,7 @@ window.Game = function(canvas) {
 		paddleRight = new window.objects.Paddle(context),
 		score = 0,
         isStopped = false,
-		that = this
+		that = this,
         paddleSpeed = 10,
         paddleMoving = { 
             leftUp: false,
@@ -30,11 +30,8 @@ window.Game = function(canvas) {
     }
     
     this.initEventListeners = function() {
-        if(that.isTouchDevice) {
-            document.addEventListener('touchstart', that.handleKeyDown);
-        } else {
-            document.addEventListener('keydown', that.handleKeyDown);
-        }
+        document.addEventListener('keydown', that.handleKeyEvent);
+        document.addEventListener('keyup', that.handleKeyEvent);
     }
 
 	this.endGame = function() {
@@ -53,9 +50,9 @@ window.Game = function(canvas) {
         if (paddleMoving.leftUp) that.movePaddle(paddleSpeed * -1, paddleLeft);
         else if (paddleMoving.leftDown) that.movePaddle(paddleSpeed, paddleLeft);
         
-		ball.draw(context);
-		paddleLeft.draw(context);
-		paddleRight.draw(context);
+		ball.draw();
+		paddleLeft.draw();
+		paddleRight.draw();
 
         if(!isStopped) {
             window.requestAnimationFrame(that.draw);
