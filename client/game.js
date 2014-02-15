@@ -75,21 +75,27 @@ window.Game = function(canvas) {
 	}
 
 	this.moveBall = function() {
-		if (ball.positionY + ball.deltaY - ball.ballRadius < 0 || ball.positionY + ball.deltaY + ball.ballRadius > canvas.height){
-            ball.deltaY = -ball.deltaY;
-        }
-     
-        if((ball.positionX - ball.deltaX <= 0) || (ball.positionX + ball.deltaX >= canvas.width)) {
+        if((ball.positionX + ball.deltaX -ball.ballRadius <= 0) || (ball.positionX + ball.deltaX + ball.ballRadius >= canvas.width)) {
             isStopped = true;
-        } else if ((ball.positionX + ball.deltaX - ball.ballRadius <= paddleLeft.positionX + paddleLeft.width) && 
-            (ball.positionY + ball.deltaY >= paddleLeft.positionY && ball.positionY + ball.deltaY <= paddleLeft.positionY + paddleLeft.height) || 
-            (ball.positionX + ball.deltaX + ball.ballRadius >= paddleRight.positionX) && 
-            (ball.positionY + ball.deltaY >= paddleRight.positionY && ball.positionY + ball.deltaY <= paddleRight.positionY + paddleLeft.height)){
+        } else if (that.ballHitsPaddle()) {
             ball.deltaX = -ball.deltaX;
+        }
+        
+        if (ball.positionY + ball.deltaY - ball.ballRadius < 0 || ball.positionY + ball.deltaY + ball.ballRadius > canvas.height){
+            ball.deltaY = -ball.deltaY;
         }
 
         ball.move();
 	}
+    
+    this.ballHitsPaddle = function() {
+        return (
+            (ball.positionX + ball.deltaX - ball.ballRadius <= paddleLeft.positionX + paddleLeft.width) && 
+            (ball.positionY + ball.deltaY >= paddleLeft.positionY && ball.positionY + ball.deltaY <= paddleLeft.positionY + paddleLeft.height) ||
+            (ball.positionX + ball.deltaX + ball.ballRadius >= paddleRight.positionX) && 
+            (ball.positionY + ball.deltaY >= paddleRight.positionY && ball.positionY + ball.deltaY <= paddleRight.positionY + paddleLeft.height)
+        );
+    }
     
     this.movePaddle = function(step, paddle) {
         paddle.positionY = Math.max(Math.min(paddle.positionY + step, canvas.height - paddle.height), 0);
