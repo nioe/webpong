@@ -33,28 +33,37 @@ window.Game = function(canvas) {
     }
     
     this.initEventListeners = function() {
-        document.addEventListener('keydown', that.handleKeyEvent);
-        document.addEventListener('keyup', that.handleKeyEvent);
+        if(that.isTouchDevice()) {
+            document.addEventListener('touchstart', that.handleTouchEvent);
+            document.addEventListener('touchmove', that.handleTouchEvent);
+        } else {
+            document.addEventListener('keydown', that.handleKeyEvent);
+            document.addEventListener('keyup', that.handleKeyEvent);
+        }
     }
 
 	this.draw = function(timestamp) {
-        if(!isStopped) {
-            window.requestAnimationFrame(that.draw);
-        }
-
         context.clearRect(0, 0, canvas.width, canvas.height);
 
 		that.moveBall();
-
+        
         if (paddleMoving.rightUp) that.movePaddle(paddleSpeed * -1, paddleRight);
         else if (paddleMoving.rightDown) that.movePaddle(paddleSpeed, paddleRight);
-        
+
         if (paddleMoving.leftUp) that.movePaddle(paddleSpeed * -1, paddleLeft);
         else if (paddleMoving.leftDown) that.movePaddle(paddleSpeed, paddleLeft);
         
 		ball.draw();
 		paddleLeft.draw();
 		paddleRight.draw();
+        
+        if(!isStopped) {
+            window.requestAnimationFrame(that.draw);
+        } else {
+            if(confirm("Play again?")) {
+                that.startGame();
+            }
+        }
 	}
 
 	this.initBallSpeed = function() {
@@ -72,7 +81,6 @@ window.Game = function(canvas) {
      
         if((ball.positionX - ball.deltaX <= 0) || (ball.positionX + ball.deltaX >= canvas.width)) {
             isStopped = true;
-            console.log("Game Ended");
         } else if ((ball.positionX + ball.deltaX - ball.ballRadius <= paddleLeft.positionX + paddleLeft.width) && 
             (ball.positionY + ball.deltaY >= paddleLeft.positionY && ball.positionY + ball.deltaY <= paddleLeft.positionY + paddleLeft.height) || 
             (ball.positionX + ball.deltaX + ball.ballRadius >= paddleRight.positionX) && 
@@ -109,6 +117,32 @@ window.Game = function(canvas) {
                 paddleMoving.leftDown = (event.type == 'keydown');
                 break;
         }        
+    }
+    
+    this.handleTouchEvent = function(event) {
+        var paddle = undefined;
+        
+        event.preventDefault(); // Prevent Scrolling
+        
+        if(event.targetTouches.length > 0) {
+            for(var i = 0; i < event.targetTouches.length; i++) {
+                if(event.targetTouches[i].pageX < canvas.width/2) {
+                    paddle = paddleLeft;   
+                } else {
+                    paddle = paddleRight;
+                }
+
+                switch(event.type) {
+                    case 'touchstart':
+                        paddle.touchY = event.targetTouches[i].pageY;
+                        break;
+                    case 'touchmove':
+                        that.movePaddle(event.targetTouches[i].pageY - paddle.touchY, paddle);
+                        paddle.touchY = event.targetTouches[i].pageY;
+                        break;
+                }
+            }
+        }
     }
 
 	this.resizeCanvas = function() {
