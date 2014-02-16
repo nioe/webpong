@@ -1,6 +1,3 @@
-/*jslint browser:true */
-/*global confirm */
-
 window.Game = function (canvas) {
     "use strict";
 
