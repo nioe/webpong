@@ -5,57 +5,78 @@ window.Game = function (canvas) {
         ball = new window.objects.Ball(context),
         paddleLeft = new window.objects.Paddle(context),
         paddleRight = new window.objects.Paddle(context),
-        score = 0,
+        fps = 0,
+        fpsAvg = undefined,
+        fpsAvgAcc = 0,
+        fpsAvgCount = 0,
+        lastFrameTimestamp = undefined,
+        deltaTime = 0,
+        speed = 400,
+        speedPerFrame = 0,
         isStopped = false,
-        that = this,
         paddleSpeed = 10,
         paddleMoving = {
             leftUp: false,
             leftDown: false,
             rightUp: false,
             rightDown: false
-        };
+        },
+        that = this;
 
     this.startGame = function () {
         isStopped = false;
 
-        that.initGame();
-        that.initEventListeners();
+        this.initGame();
+        this.initEventListeners();
 
-        window.requestAnimationFrame(that.draw);
+        window.requestAnimationFrame(this.draw);
     };
 
     this.initGame = function () {
-        that.initBallSpeed();
+        this.initBall();
         paddleLeft.positionX = 0;
         paddleRight.positionX = canvas.width - paddleRight.width;
+
+        paddleMoving.leftUp = false;
+        paddleMoving.leftDown = false;
+        paddleMoving.rightUp = false;
+        paddleMoving.rightDown = false;
     };
 
     this.initEventListeners = function () {
-        if (that.isTouchDevice()) {
-            document.addEventListener('touchstart', that.handleTouchEvent);
-            document.addEventListener('touchmove', that.handleTouchEvent);
+        if (this.isTouchDevice()) {
+            document.addEventListener('touchstart', this.handleTouchEvent);
+            document.addEventListener('touchmove', this.handleTouchEvent);
         } else {
-            document.addEventListener('keydown', that.handleKeyEvent);
-            document.addEventListener('keyup', that.handleKeyEvent);
+            document.addEventListener('keydown', this.handleKeyEvent);
+            document.addEventListener('keyup', this.handleKeyEvent);
         }
     };
 
     this.draw = function (timestamp) {
+        deltaTime = lastFrameTimestamp ? ((timestamp - lastFrameTimestamp)/1000.0) : 0.016;
+        lastFrameTimestamp = timestamp;
+
+        speedPerFrame = fpsAvg ? speed * (1/fpsAvg) : speed * 0.016;
+
         context.clearRect(0, 0, canvas.width, canvas.height);
 
-        that.moveBall();
+        that.moveBall(speedPerFrame);
 
         if (paddleMoving.rightUp) {
-            that.movePaddle(paddleSpeed * -1, paddleRight);
+            paddleRight.direction = -1;
+            paddleRight.move(speedPerFrame);
         } else if (paddleMoving.rightDown) {
-            that.movePaddle(paddleSpeed, paddleRight);
+            paddleRight.direction = 1;
+            paddleRight.move(speedPerFrame);
         }
 
         if (paddleMoving.leftUp) {
-            that.movePaddle(paddleSpeed * -1, paddleLeft);
+            paddleLeft.direction = -1;
+            paddleLeft.move(speedPerFrame);
         } else if (paddleMoving.leftDown) {
-            that.movePaddle(paddleSpeed, paddleLeft);
+            paddleLeft.direction = 1;
+            paddleLeft.move(speedPerFrame);
         }
 
         ball.draw();
@@ -69,41 +90,51 @@ window.Game = function (canvas) {
                 that.startGame();
             }
         }
+
+        that.updateFPS();
     };
 
-    this.initBallSpeed = function () {
+    this.updateFPS = function () {
+        fps = 1 / deltaTime;
+        fpsAvgAcc += fps;
+        fpsAvgCount++;
+
+        if(fpsAvgCount >= 10) {
+            fpsAvg = Math.round(fpsAvgAcc / fpsAvgCount);
+            fpsAvgCount = 1;
+            fpsAvgAcc = fps;
+        }
+    };
+
+    this.initBall = function () {
         ball.positionX = canvas.width / 2;
         ball.positionY = canvas.height / 2;
 
-        ball.deltaX = -6;
-        ball.deltaY = -6;
+        ball.directionX = -1;
+        ball.directionY = -1;
     };
 
-    this.moveBall = function () {
-        if ((ball.positionX + ball.deltaX - ball.ballRadius <= 0) || (ball.positionX + ball.deltaX + ball.ballRadius >= canvas.width)) {
+    this.moveBall = function (speed) {
+        if ((ball.positionX + speed - ball.ballRadius <= 0) || (ball.positionX + speed + ball.ballRadius >= canvas.width)) {
             isStopped = true;
-        } else if (that.ballHitsPaddle()) {
-            ball.deltaX = -ball.deltaX;
+        } else if (this.ballHitsPaddle(speed)) {
+            ball.directionX = -ball.directionX;
         }
 
-        if (ball.positionY + ball.deltaY - ball.ballRadius < 0 || ball.positionY + ball.deltaY + ball.ballRadius > canvas.height) {
-            ball.deltaY = -ball.deltaY;
+        if (ball.positionY + speed - ball.ballRadius < 0 || ball.positionY + speed + ball.ballRadius > canvas.height) {
+            ball.directionY = -ball.directionY;
         }
 
-        ball.move();
+        ball.move(speed);
     };
 
-    this.ballHitsPaddle = function () {
+    this.ballHitsPaddle = function (speed) {
         return (
-            ((ball.positionX + ball.deltaX - ball.ballRadius <= paddleLeft.positionX + paddleLeft.width) &&
-                (ball.positionY + ball.deltaY >= paddleLeft.positionY && ball.positionY + ball.deltaY <= paddleLeft.positionY + paddleLeft.height)) ||
-            ((ball.positionX + ball.deltaX + ball.ballRadius >= paddleRight.positionX) &&
-                (ball.positionY + ball.deltaY >= paddleRight.positionY && ball.positionY + ball.deltaY <= paddleRight.positionY + paddleLeft.height))
+            ((ball.positionX - speed - ball.ballRadius <= paddleLeft.positionX + paddleLeft.width) &&
+                (ball.positionY - speed >= paddleLeft.positionY && ball.positionY + speed <= paddleLeft.positionY + paddleLeft.height)) ||
+            ((ball.positionX + speed + ball.ballRadius >= paddleRight.positionX) &&
+                (ball.positionY - speed >= paddleRight.positionY && ball.positionY + speed <= paddleRight.positionY + paddleLeft.height))
         );
-    };
-
-    this.movePaddle = function (step, paddle) {
-        paddle.positionY = Math.max(Math.min(paddle.positionY + step, canvas.height - paddle.height), 0);
     };
 
     this.handleKeyEvent = function (event) {
@@ -144,10 +175,11 @@ window.Game = function (canvas) {
 
                 switch (event.type) {
                 case 'touchstart':
+                    paddle.direction = 1;
                     paddle.touchY = event.targetTouches[i].pageY;
                     break;
                 case 'touchmove':
-                    that.movePaddle(event.targetTouches[i].pageY - paddle.touchY, paddle);
+                    paddle.move(event.targetTouches[i].pageY - paddle.touchY);
                     paddle.touchY = event.targetTouches[i].pageY;
                     break;
                 }
@@ -159,10 +191,13 @@ window.Game = function (canvas) {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
+        paddleLeft.max = canvas.height;
+        paddleRight.max = canvas.height;
+
         if (isStopped) {
-            that.startGame();
+            this.startGame();
         } else {
-            that.initGame();
+            this.initGame();
         }
     };
 

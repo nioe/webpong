@@ -6,8 +6,8 @@ window.objects.Ball = function (context) {
     this.positionX = 0;
     this.positionY = 0;
     this.ballRadius = 10;
-    this.deltaX = 0;
-    this.deltaY = 0;
+    this.directionX = 1;
+    this.directionY = 1;
 
     this.draw = function () {
         context.beginPath();
@@ -17,8 +17,8 @@ window.objects.Ball = function (context) {
         context.fill();
     };
 
-    this.move = function () {
-        this.positionX += this.deltaX;
-        this.positionY += this.deltaY;
+    this.move = function (speed) {
+        this.positionX += speed * this.directionX;
+        this.positionY += speed * this.directionY;
     };
 };
